@@ -20,7 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,15 +42,23 @@ private final int SIGN_IN=1;
         List<UserHelper> msg;
         ListView list;
         list=findViewById(R.id.list);
+
+        //Initialized the Root Node
         mDatabaseRef=FirebaseDatabase.getInstance().getReference().child("Data").child("Users");
+
+        //Initialized Firebase Auth
         auth=FirebaseAuth.getInstance();
         msg=new ArrayList<>();
+
+        //Custom ArrayAdapter
         adapter=new Adapter(this,R.layout.adapter,msg);
         list.setAdapter(adapter);
 
 
 
-        
+        //This will check whether the user is authenticated or not
+        //and if they are not then the user will be redirected to
+        //login page and ChildEvent Listener will be detached
         authStateListener= firebaseAuth -> {
             FirebaseUser user=firebaseAuth.getCurrentUser();
             if(user!=null){
@@ -61,14 +69,13 @@ private final int SIGN_IN=1;
                 //User SignedOut
                 UserLoggedOut();
                 // Choose authentication providers
-                List<AuthUI.IdpConfig> providers = Arrays.asList(
+                List<AuthUI.IdpConfig> providers = Collections.singletonList(
                         new AuthUI.IdpConfig.EmailBuilder().build());
 
                 startActivityForResult(
                         AuthUI.getInstance()
                                 .createSignInIntentBuilder()
                                 .setAvailableProviders(providers)
-                                .setIsSmartLockEnabled(false)
                                 .build(),
                         SIGN_IN);
             }
@@ -85,6 +92,9 @@ private final int SIGN_IN=1;
     }
 
     private void UserLoggedIn() {
+        //If the User is Authenticated then ChildeventListener will
+        //check and retrieve all the changes made in the realtime
+        //database.
 
         if(ChildEventListener==null) {
             ChildEventListener = new ChildEventListener() {
@@ -92,7 +102,6 @@ private final int SIGN_IN=1;
                 public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                     UserHelper data = snapshot.getValue(UserHelper.class);
                     adapter.add(data);
-                    //msg.add(data);
                 }
 
                 @Override
@@ -122,9 +131,14 @@ private final int SIGN_IN=1;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        //This will exit the app when the user presses back button
+        //from the Login page.
+        //Otherwise MainActivity Will endlessly thow the user onto the
+        // Login Page
         if(requestCode==SIGN_IN){
             if(resultCode==RESULT_OK){
-                Toast.makeText(this,"Sign In!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"Signed In!",Toast.LENGTH_SHORT).show();
             }else if(resultCode==RESULT_CANCELED){
                 Toast.makeText(this,"Sign in Canceled",Toast.LENGTH_SHORT).show();
                 finish();

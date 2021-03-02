@@ -28,8 +28,10 @@ public class Adapter extends ArrayAdapter<UserHelper> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
+
             convertView=LayoutInflater.from(getContext()).inflate(R.layout.adapter, parent, false);
         }
+
         UserHelper message = getItem(position);
         ImageView photoImageView = convertView.findViewById(R.id.imageView);
         TextView nameTextView =  convertView.findViewById(R.id.text);
@@ -55,8 +57,3 @@ public class Adapter extends ArrayAdapter<UserHelper> {
         return convertView;
     }
 }
-/*Intent intent=new Intent(((Activity)getContext()),display_Data.class);
-                intent.putExtra("name",message.getUser_name());
-                intent.putExtra("city",message.getCity());
-                intent.putExtra("age",message.getAge());
-                intent.putExtra("gender",message.getGender());*/
